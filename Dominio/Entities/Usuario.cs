@@ -2,7 +2,7 @@
 
 namespace Dominio.Entities
 {
-    public class Usuario:BaseEntity
+    public class Usuario : BaseEntity
     {
     public string Username { get; set; }
     public string Email { get; set; }

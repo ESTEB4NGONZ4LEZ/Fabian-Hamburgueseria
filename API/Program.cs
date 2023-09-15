@@ -43,9 +43,10 @@ builder.Services.AddAuthorization(opts =>{
         .Build();
 });
 builder.Services.AddAplicacionServices();
+
 builder.Services.AddDbContext<DbAppContext>(options =>
 {
-    string connectionString = builder.Configuration.GetConnectionString("ConexMysql");
+    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
