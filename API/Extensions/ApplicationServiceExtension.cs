@@ -1,16 +1,9 @@
 
-using System.Text;
-using API.Helpers;
-using API.Helpers.Errors;
-using API.Services;
 using Aplicacion.UnitOfWork;
-using Dominio.Entities;
+using AspNetCoreRateLimit;
 using Dominio.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace API.Extensions
 {
@@ -20,65 +13,50 @@ namespace API.Extensions
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
-                builder.AllowAnyOrigin()    //WithOrigins("https://domini.com")
-                .AllowAnyMethod()           //WithMethods(*GET", "POST")
-                .AllowAnyHeader());         //WithHeaders(*accept*, "content-type")
+                builder.AllowAnyOrigin()    
+                .AllowAnyMethod()           
+                .AllowAnyHeader());         
             });
 
         public static void AddAplicacionServices(this IServiceCollection services)
         {
-            services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
-            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IAuthorizationHandler, GlobalVerbRoleHandler>();
         }
 
-        public static void AddJwt(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureRateLimiting(this IServiceCollection services)
         {
-            //Configuration from AppSettings
-            services.Configure<JWT>(configuration.GetSection("JWT"));
-
-            //Adding Athentication - JWT
-            services.AddAuthentication(options =>
+            services.AddMemoryCache();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddInMemoryRateLimiting();
+            services.Configure<IpRateLimitOptions>(opt => 
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(o =>
+                opt.EnableEndpointRateLimiting = true;
+                opt.StackBlockedRequests = false;
+                opt.HttpStatusCode = 429;
+                opt.RealIpHeader = "X-Real-IP";
+                opt.GeneralRules = new List<RateLimitRule>
                 {
-                    o.RequireHttpsMetadata = false;
-                    o.SaveToken = false;
-                    o.TokenValidationParameters = new TokenValidationParameters
+                    new RateLimitRule
                     {
-                        ValidateIssuerSigningKey = true,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero,
-                        ValidIssuer = configuration["JWT:Issuer"],
-                        ValidAudience = configuration["JWT:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]))
-                    };
-                });
-        }
-        public static void AddValidationErrors(this IServiceCollection services)
-        {
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = actionContext =>
-                {
-
-                    var errors = actionContext.ModelState.Where(u => u.Value.Errors.Count > 0)
-                                                    .SelectMany(u => u.Value.Errors)
-                                                    .Select(u => u.ErrorMessage).ToArray();
-
-                    var errorResponse = new ApiValidation()
-                    {
-                        Errors = errors
-                    };
-
-                    return new BadRequestObjectResult(errorResponse);
+                        Endpoint = "*",
+                        Period = "20s",
+                        Limit = 4
+                    }
                 };
+            });
+        }
+
+        public static void ConfigureApiVersioning(this IServiceCollection services)
+        {
+            services.AddApiVersioning(opt =>
+            {
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ApiVersionReader = ApiVersionReader.Combine
+                (
+                    new QueryStringApiVersionReader("version"),
+                    new HeaderApiVersionReader("X-Version")
+                );
             });
         }
 

@@ -13,37 +13,12 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     {
         _context = context;
     } 
-
-    RolRepository _rol;
-    UsuarioRepository _usuario;
+    
     CategoriaRepository _categoria;
     ChefRepository _chef;
     HamburguesaIngredienteRepository _hamburguesaIngrediente;
     HamburguesaRepository _hamburguesa;
     IngredienteRepository _ingrediente;
-    
-    public IUsuario Usuarios
-    {
-        get
-        {
-            if (_usuario is not null)
-            {
-                return _usuario;
-            }
-            return _usuario = new UsuarioRepository(_context);
-        }
-    }
-    public IRol Roles
-    {
-        get
-        {
-            if (_rol is not null)
-            {
-                return _rol;
-            }
-            return _rol = new RolRepository(_context);
-        }
-    }
 
     public ICategoria Categoria
     {

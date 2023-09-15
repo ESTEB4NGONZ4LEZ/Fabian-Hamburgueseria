@@ -61,4 +61,19 @@ public class HamburguesaIngredienteRepository : IHamburguesaIngrediente
                                       
         return (totalRegistros, registros);
     }
+    public List<int> GetIdHamburguesasPanIntegral(int idIngrediente)
+    {
+        return _context.HamburguesaIngredientes
+                       .Where(x => x.IngredienteId == idIngrediente)
+                       .Select(x => x.HamburguesaId)
+                       .ToList();
+    }
+
+    public List<int> GetIdHamburguesaNoQueso(int idIngrediente)
+    {
+        return _context.HamburguesaIngredientes
+                       .Where(x => x.IngredienteId != idIngrediente)
+                       .Select(x => x.HamburguesaId)
+                       .ToList();
+    }
 }

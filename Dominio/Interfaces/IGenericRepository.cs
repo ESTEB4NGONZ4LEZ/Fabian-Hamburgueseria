@@ -6,7 +6,7 @@ namespace Dominio.Interfaces;
 public interface IGenericRepository<T> where T : BaseEntity
 {
     Task<IEnumerable<T>> GetAllAsync();
-    Task<T> GetByIdAsync(string id);
+    Task<T> GetByIdAsync(int id);
     void Add(T entity);
     void AddRange(IEnumerable<T> entities);
     void Update(T entity);

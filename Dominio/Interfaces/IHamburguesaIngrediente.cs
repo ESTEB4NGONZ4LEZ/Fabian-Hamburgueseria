@@ -15,4 +15,6 @@ public interface IHamburguesaIngrediente
     void RemoveRange(IEnumerable<HamburguesaIngrediente> entities);
     IEnumerable<HamburguesaIngrediente> Find(Expression<Func<HamburguesaIngrediente, bool>> expression);
     Task<(int totalRegistros, IEnumerable<HamburguesaIngrediente> registros)> GetAllAsync(int pageIndex, int pageSize, string search);
+    List<int> GetIdHamburguesasPanIntegral(int idIngrediente);
+    List<int> GetIdHamburguesaNoQueso(int idIngrediente);
 }

@@ -10,7 +10,7 @@ using Persistencia;
 namespace Persistencia.Data.Migrations
 {
     [DbContext(typeof(DbAppContext))]
-    [Migration("20230915121943_InitialMigration")]
+    [Migration("20230915130621_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -128,65 +128,6 @@ namespace Persistencia.Data.Migrations
                     b.ToTable("ingrediente", (string)null);
                 });
 
-            modelBuilder.Entity("Dominio.Entities.Rol", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("rol", (string)null);
-                });
-
-            modelBuilder.Entity("Dominio.Entities.Usuario", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Username", "Email")
-                        .IsUnique();
-
-                    b.ToTable("usuario", (string)null);
-                });
-
-            modelBuilder.Entity("Dominio.Entities.UsuarioRoles", b =>
-                {
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RolId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UsuarioId", "RolId");
-
-                    b.HasIndex("RolId");
-
-                    b.ToTable("UsuariosRoles");
-                });
-
             modelBuilder.Entity("Dominio.Entities.Hamburguesa", b =>
                 {
                     b.HasOne("Dominio.Entities.Categoria", "Categoria")
@@ -225,25 +166,6 @@ namespace Persistencia.Data.Migrations
                     b.Navigation("Ingrediente");
                 });
 
-            modelBuilder.Entity("Dominio.Entities.UsuarioRoles", b =>
-                {
-                    b.HasOne("Dominio.Entities.Rol", "Rol")
-                        .WithMany("UsuariosRoles")
-                        .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Dominio.Entities.Usuario", "Usuario")
-                        .WithMany("UsuariosRoles")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Rol");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("Dominio.Entities.Categoria", b =>
                 {
                     b.Navigation("Hamburguesas");
@@ -262,16 +184,6 @@ namespace Persistencia.Data.Migrations
             modelBuilder.Entity("Dominio.Entities.Ingrediente", b =>
                 {
                     b.Navigation("HamburguesaIngredientes");
-                });
-
-            modelBuilder.Entity("Dominio.Entities.Rol", b =>
-                {
-                    b.Navigation("UsuariosRoles");
-                });
-
-            modelBuilder.Entity("Dominio.Entities.Usuario", b =>
-                {
-                    b.Navigation("UsuariosRoles");
                 });
 #pragma warning restore 612, 618
         }
